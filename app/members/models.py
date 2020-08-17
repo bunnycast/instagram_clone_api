@@ -40,7 +40,7 @@ class User(AbstractBaseUser):
     )
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    relation_users = models.ManyToManyField(
+    relations_users = models.ManyToManyField(
         'self',
         through='Relations',
         # relations_users 에 대한 역방향 참조에 대해서 거부한다.
@@ -53,6 +53,15 @@ class User(AbstractBaseUser):
 
     # def __str__(self):
     #     return self.email
+
+    def save(self, *args, **kwargs):
+        username = kwargs.pop('username')
+        super().save(*args, **kwargs)
+        pro = Profile.objects.create(
+            user=self,
+            username=username,
+        )
+        return self
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
@@ -110,6 +119,7 @@ class User(AbstractBaseUser):
         )
         return user
 
+
 class Relations(models.Model):
     CHOICE_RELATIONS_TYPE = (
         ('f', 'follow'),
@@ -138,3 +148,9 @@ class Relations(models.Model):
             ('from_user', 'to_user'),
             ('to_user', 'from_user'),
         )
+
+
+class Profile(models.Model):
+    user = models.OneToOneField('User', on_delete=models.CASCADE)
+    username = models.CharField(max_length=15)
+    introduce = models.CharField(max_length=100)

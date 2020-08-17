@@ -7,22 +7,26 @@ from members.models import Relations
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'password')
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        fields = ('email', 'password')
 
     def create(self, validated_data):
         user = User(
             email=validated_data['email'],
-            username=validated_data['username']
         )
         user.set_password(validated_data['password'])
-        user.save()
+        user.save(username=self.context['request'].data.get['username'])
         return user
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('id', 'email', 'password')
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
 
 class RelationSerializers(serializers.ModelSerializer):

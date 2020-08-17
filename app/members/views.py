@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from members.models import Relations
-from members.serializers import UserSerializer, RelationSerializers
+from members.serializers import UserSerializer, RelationSerializers, UserCreateSerializer
 
 User = get_user_model()
 
@@ -18,7 +18,12 @@ class UserModelViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['makefFollow', 'makeBlock', 'create_delete_Relation']:
             return RelationSerializers
+        elif self.action == 'create':
+            return UserCreateSerializer
         return super().get_serializer_class()
+
+    def perform_create(self, serializer):
+        serializer.save(context={'request':self.request})
 
     @action(methods=['POST'], detail=False)
     def login(self, request):
