@@ -51,8 +51,8 @@ class User(AbstractBaseUser):
 
     USERNAME_FIELD = 'email'
 
-    def __str__(self):
-        return self.email
+    # def __str__(self):
+    #     return self.email
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
@@ -70,9 +70,45 @@ class User(AbstractBaseUser):
         # The Simplest possible answer : All admins aer staff
         return self.is_admin
 
-    def save(self, *args, **kwargs):
-        self.set_password(self.password)
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self.set_password(self.password)
+    #     return super().save(*args, **kwargs)
+
+    @property
+    def follow(self):
+        # 내가 팔로우 건 유저
+        user = User.objects.filter(
+            to_users_relation__from_user=self,
+            to_users_ralation__related_type='f',
+        )
+        return user
+
+    @property
+    def follower(self):
+        # 나를 팔로우한 유저
+        user = User.objects.filter(
+            from_users_relation__to_user=self,
+            from_users_ralation__related_type='f',
+        )
+        return user
+
+    @property
+    def blocker(self):
+        # 나를 차단한 유저
+        user = User.objects.filter(
+            from_users_relation__to_user=self,
+            from_users_relation__related_type='b',
+        )
+        return user
+
+    @property
+    def block(self):
+        # 내가 차단한 유저
+        user = User.objects.filter(
+            to_users_relation__from_user=self,
+            to_users_relation__related_type='b',
+        )
+        return user
 
 class Relations(models.Model):
     CHOICE_RELATIONS_TYPE = (
@@ -98,7 +134,7 @@ class Relations(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together=(
+        unique_together = (
             ('from_user', 'to_user'),
             ('to_user', 'from_user'),
         )
