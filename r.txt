@@ -2,6 +2,8 @@ asgiref==3.2.10
 Django==3.0
 django-environ==0.4.5
 djangorestframework==3.11.1
+future==0.18.2
 psycopg2-binary==2.8.5
 pytz==2020.1
+serializers==0.2.4
 sqlparse==0.3.1
