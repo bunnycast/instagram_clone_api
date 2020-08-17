@@ -89,7 +89,13 @@ class UserModelViewSet(viewsets.ModelViewSet):
 
     @action(methods=['DELETE'], detail=False)
     def deleteFollow(self, request):
-        pass
+        try:
+            relation = Relations.objects.get(from_user=request.user,
+                                             to_user=User.objects.get(pk=request.query_params.get('toUser')))
+            relation.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Relations.DoesNotExist:
+            return Response({"message":"not exists relations"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RelationModelViewSet(viewsets.ModelViewSet):
