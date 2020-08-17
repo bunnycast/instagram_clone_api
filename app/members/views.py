@@ -16,7 +16,7 @@ class UserModelViewSet(viewsets.ModelViewSet):
     # serializer_class = UserSerializer
 
     def get_serializer_class(self):
-        if self.action == 'makefFollow':
+        if self.action in ['makefFollow', 'makeBlock', 'create_delete_Relation']:
             return RelationSerializers
         return super().get_serializer_class()
 
@@ -69,11 +69,11 @@ class UserModelViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False)
-    def makeFollow(self, request):
+    def makeBlock(self, request):
         to_user = User.objects.get(pk=request.quert_params.get('toUser'))
         relation_type = request.quert_params.get('type')
         try:
-            Relations.objects.get(from_user=request.user, to_user=to_user)
+            relation = Relations.objects.get(from_user=request.user, to_user=to_user)
         except Relations.DoesNotExist:
             data = {
                 'from_user': request.user.pk,
@@ -85,19 +85,53 @@ class UserModelViewSet(viewsets.ModelViewSet):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'message': 'exists relation'}, status=status.HTTP_400_BAD_REQUEST)
+        relation.related_type = 'b'
+        relation.save()
+        return Response({'message': 'change relation'}, status=status.HTTP_200_OK)
 
     @action(methods=['DELETE'], detail=False)
-    def deleteFollow(self, request):
+    def deleteBlock(self, request):
+        to_user = User.objects.get(pk=request.query_params.get('toUser'))
         try:
-            relation = Relations.objects.get(from_user=request.user,
-                                             to_user=User.objects.get(pk=request.query_params.get('toUser')))
-            relation.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            relation = Relations.objects.get(from_user=request.user, to_user=to_user)
         except Relations.DoesNotExist:
-            return Response({"message":"not exists relations"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "has not relations"}, status=status.HTTP_400_BAD_REQUEST)
+        relation.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @action(methods=['POST', 'DELETE', 'PATCH'], detail=False)
+    def create_delete_Relation(self, request):
+        """
+        :param request: relation type이 f면 팔로우, b 면 블락
+        1. 이미 팔로우한 유저가 블락을 걸면 이미 존재하는 릴레이션 지우고, 요청에 맞게 재설정
+        """
+        to_user = User.objects.get(pk=request.query_params.get('toUser'))
+        relation_type = request.query_params.get('type')
+        method = request._request.method
+        data = {
+            'from_user': request.user.pk,
+            'to_user': to_user.pk,
+            'relation_type': relation_type
+        }
+        try:
+            relation = Relations.objects.get(from_user=request.user, to_user=to_user)
+            if method == 'PATCH':
+                serializers = self.get_serializer(relation, data=data)
+                if serializers.is_valid():
+                    serializers.save()
+                    return Response(serializers.data, status=status.HTTP_200_OK)
+                return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+            elif method == 'DELETE':
+                relation.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({'message':'incorrect request.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Relations.DoesNotExist:
+            if method == 'POST':
+                serializer = self.get_serializer(data=data)
+                if serializer.is_valid(raise_exception=True):
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-class RelationModelViewSet(viewsets.ModelViewSet):
-    queryset = Relations.objects.all()
-    serializer_class = RelationSerializers
