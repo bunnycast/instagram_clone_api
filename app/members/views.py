@@ -12,8 +12,7 @@ User = get_user_model()
 
 class UserModelViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-
-    # serializer_class = UserSerializer
+    serializer_class = UserSerializer
 
     def get_serializer_class(self):
         if self.action in ['makeFollow', 'makeBlock', 'create_delete_Relation']:
