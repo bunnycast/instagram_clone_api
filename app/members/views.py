@@ -16,7 +16,7 @@ class UserModelViewSet(viewsets.ModelViewSet):
     # serializer_class = UserSerializer
 
     def get_serializer_class(self):
-        if self.action in ['makefFollow', 'makeBlock', 'create_delete_Relation']:
+        if self.action in ['makeFollow', 'makeBlock', 'create_delete_Relation']:
             return RelationSerializers
         elif self.action == 'create':
             return UserCreateSerializer
