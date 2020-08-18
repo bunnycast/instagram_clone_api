@@ -18,6 +18,8 @@ class MyUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
 
+        return user
+
     def create_superuser(self, email, password=None):
         """
         Creates and saves a superuser with the given email, date of
@@ -50,18 +52,6 @@ class User(AbstractBaseUser):
     objects = MyUserManager()
 
     USERNAME_FIELD = 'email'
-
-    # def __str__(self):
-    #     return self.email
-
-    def save(self, *args, **kwargs):
-        username = kwargs.pop('username')
-        super().save(*args, **kwargs)
-        pro = Profile.objects.create(
-            user=self,
-            username=username,
-        )
-        return self
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"

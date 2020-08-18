@@ -25,7 +25,7 @@ class UserTestCase(APITestCase):
         data = {
             'email': 'create@user.com',
             'password': '1111',
-            'username': 'testUser',
+            'username': 'testUser'
         }
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -41,7 +41,7 @@ class UserTestCase(APITestCase):
 
     def test_partial_update(self):
         data = {
-            'password:1111',
+            'password:1111'
         }
         url = self.url + f'/{self.user.id}'
         response = self.client.patch(url, data=data)
@@ -58,7 +58,7 @@ class UserTestCase(APITestCase):
         # login success > generating token
         data = {
             'email': self.user.email,
-            'password': '1111',
+            'password': '1111'
         }
         url = self.url + '/login'
         response = self.client.post(url, data=data)
@@ -68,15 +68,15 @@ class UserTestCase(APITestCase):
         # bad request
         data = {
             'email': self.user.email,
-            'password': 'wrongPW',
+            'password': 'wrongPW'
         }
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)    # 401 != 400 request
 
         # login success > getting token
         data = {
             'email': self.user.email,
-            'password': '1111',
+            'password': '1111'
         }
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
