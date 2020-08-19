@@ -20,7 +20,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
 
 env_path = ROOT_DIR + '/.env'
 environ.Env.read_env(env_file=env_path)
-MEDIA_ROOT = os.path.join(ROOT_DIR, '.media')
+MEDIA_ROOT = os.path.join(ROOT_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/

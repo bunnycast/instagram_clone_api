@@ -4,8 +4,10 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from members.models import Relations
-from members.serializers import UserSerializer, RelationSerializers, UserCreateSerializer
+from members.models import Relations, Profile
+from members.serializers import UserSerializer, RelationSerializers, UserCreateSerializer, ProfileSerializer
+from posts.models import Post
+from posts.serializers import PostSerializer
 
 User = get_user_model()
 
@@ -22,7 +24,7 @@ class UserModelViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def perform_create(self, serializer):
-        serializer.save(context={'request':self.request})
+        serializer.save(context={'request': self.request})
 
     @action(methods=['POST'], detail=False)
     def login(self, request):
@@ -132,7 +134,7 @@ class UserModelViewSet(viewsets.ModelViewSet):
                 relation.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
-                return Response({'message':'incorrect request.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'incorrect request.'}, status=status.HTTP_400_BAD_REQUEST)
         except Relations.DoesNotExist:
             if method == 'POST':
                 serializer = self.get_serializer(data=data)
@@ -142,3 +144,7 @@ class UserModelViewSet(viewsets.ModelViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+
+class ProfileModelViewSet(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer

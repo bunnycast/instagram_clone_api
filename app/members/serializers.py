@@ -22,7 +22,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model save()에서 커스텀을 하려면 save에 어떤 인자를 보내야 받을 수 있을까?
         """
 
-        pro = Profile.objects.create(user=user, username=username,)
+        pro = Profile.objects.create(user=user, username=username, )
 
         return user
 
@@ -40,3 +40,9 @@ class RelationSerializers(serializers.ModelSerializer):
     class Meta:
         model = Relations
         fields = ('id', 'from_user', 'to_user', 'related_type')
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('username', 'introduce')
