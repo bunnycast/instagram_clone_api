@@ -9,6 +9,11 @@ class Post(models.Model):
     content = models.CharField('글 내용', max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to="%y%m%d")
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        return super().save()
 
 
 class Comment(models.Model):

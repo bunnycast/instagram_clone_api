@@ -16,9 +16,11 @@ import os
 import environ
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
 
-env_path = os.path.dirname(os.path.dirname(BASE_DIR)) + '/.env'
-env_file = environ.Env.read_env(env_file=env_path)
+env_path = ROOT_DIR + '/.env'
+environ.Env.read_env(env_file=env_path)
+MEDIA_ROOT = os.path.join(ROOT_DIR, '.media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -128,6 +130,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

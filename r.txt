@@ -4,6 +4,7 @@ django-environ==0.4.5
 djangorestframework==3.11.0
 drf-nested-routers==0.91
 future==0.18.2
+Pillow==7.2.0
 psycopg2-binary==2.8.5
 pytz==2020.1
 serializers==0.2.4
