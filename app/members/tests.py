@@ -71,7 +71,7 @@ class UserTestCase(APITestCase):
             'password': 'wrongPW'
         }
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)    # 401 != 400 request
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)  # 401 != 400 request
 
         # login success > getting token
         data = {
@@ -91,3 +91,21 @@ class UserTestCase(APITestCase):
         self.assertIsNone(token.key)
 
         self.assertEqual(Token.objects.filter(user=self.user).first(), None)
+
+    def test_change_password(self):
+        url = self.url + f'/{self.user.id}/change-password'
+        self.client.force_authenticate(self.user)
+        # password correct
+        data = {
+            'old_password': '1111',
+            'new_password': '2222',
+        }
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # password incorrect
+        data = {
+            'old_password': '11111',
+            'new_password': '2222',
+        }
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

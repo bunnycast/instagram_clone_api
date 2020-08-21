@@ -5,7 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from members.models import Relations, Profile
-from members.serializers import UserSerializer, RelationSerializers, UserCreateSerializer, ProfileSerializer
+from members.serializers import UserSerializer, RelationSerializers, UserCreateSerializer, ProfileSerializer, \
+    ChangePassSerializer
 from posts.models import Post
 from posts.serializers import PostSerializer
 
@@ -21,10 +22,25 @@ class UserModelViewSet(viewsets.ModelViewSet):
             return RelationSerializers
         elif self.action == 'create':
             return UserCreateSerializer
+        elif self.action == 'set_password':
+            return ChangePassSerializer
         return super().get_serializer_class()
 
     def perform_create(self, serializer):
         serializer.save(context={'request': self.request})
+
+    @action(methods=['POST'], detail=True, url_path='change-password')
+    def set_password(self, request, pk):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            old_password = serializer.data.get('old_password')
+            new_password = serializer.data.get('new_password')
+            if not request.user.check_password(old_password):
+                return Response({'message': 'invalid password'}, status=status.HTTP_400_BAD_REQUEST)
+            request.user.set_password(new_password)
+            request.user.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['POST'], detail=False)
     def login(self, request):

@@ -46,3 +46,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ('username', 'introduce')
+
+
+class ChangePassSerializer(serializers.Serializer):
+    model = User
+    old_password = serializers.CharField(max_length=128, required=True)
+    new_password = serializers.CharField(max_length=128, required=True)
+
+    def update(self, instance, validated_data):
+        return super().update()

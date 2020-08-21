@@ -14,6 +14,6 @@ users_router = routers.NestedSimpleRouter(router, r'users', lookup='user')
 users_router.register(r'posts', PostModelViewSet)
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^', include(users_router.urls)),
+    url(r'', include(router.urls)),
+    url(r'', include(users_router.urls)),
 ]
