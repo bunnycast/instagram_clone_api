@@ -3,7 +3,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from posts.models import Post
+from posts.models import Post, Comment
 
 User = get_user_model()
 
@@ -64,3 +64,29 @@ class PostTest(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class CommentTest(APITestCase):
+    def setUp(self) -> None:
+        self.user = User.object.create_user(
+            email='testUser@test.com',
+            password='1111',
+        )
+        self.post = Post.objects.create(
+            title='test Post title',
+            content='test Content title',
+        )
+        self.comment = Comment.objects.create(
+            content='test content',
+            post=self.post,
+            user=self.user,
+        )
+
+    def test_comment_list(self):
+        self.fail()
+
+    def tesT_create(self):
+        data = {
+
+        }
+        self.fail()
