@@ -8,10 +8,10 @@ from posts.views import PostModelViewSet, CommentModelViewSet
 
 router = SimpleRouter(trailing_slash=False)
 router.register(r'users', UserModelViewSet)
-router.register(r'profile', ProfileModelViewSet)
 
 users_router = routers.NestedSimpleRouter(router, r'users', lookup='user')
 users_router.register(r'posts', PostModelViewSet)
+users_router.register(r'profile', ProfileModelViewSet)
 
 posts_router = routers.NestedSimpleRouter(users_router, 'posts')
 posts_router.register('comments', CommentModelViewSet)

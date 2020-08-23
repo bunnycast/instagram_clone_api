@@ -45,7 +45,7 @@ class RelationSerializers(serializers.ModelSerializer):
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ('username', 'introduce')
+        fields = ('id', 'username', 'introduce')
 
 
 class ChangePassSerializer(serializers.Serializer):

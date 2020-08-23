@@ -3,7 +3,9 @@ from rest_framework import viewsets, status, exceptions
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.mixins import UpdateModelMixin, RetrieveModelMixin, ListModelMixin
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 
 from members.models import Relations, Profile
 from members.serializers import UserSerializer, RelationSerializers, UserCreateSerializer, \
@@ -158,6 +160,13 @@ class UserModelViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class ProfileModelViewSet(viewsets.ModelViewSet):
+class ProfileModelViewSet(UpdateModelMixin, RetrieveModelMixin, ListModelMixin, GenericViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileUpdateSerializer
+
+    def get_queryset(self):
+        if self.action == 'retrieve':
+            qs = Profile.objects.filter(pk=self.kwargs['nested_1_pk'])
+        elif self.action == 'list':
+            qs = Profile.objects.filter(user=self.request.user)
+        return qs

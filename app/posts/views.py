@@ -40,9 +40,10 @@ class CommentModelViewSet(viewsets.ModelViewSet):
             return super().get_serializer_class()
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user,
-                        post=Post.objects.get(pk=self.kwargs['nested_2_pk']))
-
+        serializer.save(
+            user=self.request.user,
+            post=Post.objects.get(pk=self.kwargs['nested_2_pk'])
+        )
 
 class PostLikeModelViewSet(viewsets.ModelViewSet):
     queryset = PostLike.objects.all()
