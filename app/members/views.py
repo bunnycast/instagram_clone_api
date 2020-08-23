@@ -35,11 +35,9 @@ class UserModelViewSet(viewsets.ModelViewSet):
         user = get_object_or_404(User, pk)
         self.check_object_permissions(self.request, user)
         serializer = self.get_serializer(user, data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exceptions=True)
+        serializer.save()
+        return Response(status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False)
     def login(self, request):
