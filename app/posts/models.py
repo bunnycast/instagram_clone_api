@@ -24,4 +24,5 @@ class Comment(models.Model):
 
 
 class PostLike(models.Model):
-    pass
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)

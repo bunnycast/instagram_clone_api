@@ -3,7 +3,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from posts.models import Post, Comment
+from posts.models import Post, Comment, PostLike
 
 User = get_user_model()
 
@@ -81,12 +81,59 @@ class CommentTest(APITestCase):
             post=self.post,
             user=self.user,
         )
+        self.url = f'/api/users/{self.user.id}/posts/{self.post.id}/comments'
+        self.url_detail = self.url + f'/{self.comment.id}'
 
     def test_comment_list(self):
-        self.fail()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def tesT_create(self):
+    def test_comment_create(self):
+        self.client.force_authenticate(self.user)
         data = {
-
+            'content': 'test create content',
         }
-        self.fail()
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_comment_update(self):
+        data = {
+            'content': 'update content',
+        }
+        response = self.client.patch(self.url_detail, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['content'], data['content'])
+        self.assertEqual(response.data['id', self.comment.id])
+
+    def test_comment_destroy(self):
+        response = self.client.delete(self.url_detail)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class PostLikeTest(APITestCase):
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(
+            email='testUser@test.com',
+            password='1111',
+        )
+        self.post = Post.objects.create(
+            title='test Post',
+            content='test content',
+            user=self.user,
+        )
+        self.url = f'/api/users/{self.user.id}/posts/{self.post.id}/like'
+
+    def test_like_create(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(self.url, data={})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['post'], self.post.id)
+        self.assertEqual(response.data['user'], self.user.id)
+
+    def test_like_destroy(self):
+        like = PostLike.objects.create(
+            post=self.post,
+            user=self.user
+        )
+        response = self.client.delete(self.url + f'/{like.id}')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
