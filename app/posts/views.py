@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from rest_framework import viewsets
 
-from posts.models import Post, Comment, PostLike
+from posts.models import Post, Comment, PostLike, CommentLike
 from posts.serializers import PostSerializer, CommentSerializer, PostUpdateSerializer, CommentUpdateSerializer, \
-    PostLikeSerializer
+    PostLikeSerializer, CommentLikeSerializer
 
 User = get_user_model()
 
@@ -45,9 +45,15 @@ class CommentModelViewSet(viewsets.ModelViewSet):
             post=Post.objects.get(pk=self.kwargs['nested_2_pk'])
         )
 
+
 class PostLikeModelViewSet(viewsets.ModelViewSet):
     queryset = PostLike.objects.all()
     serializer_class = PostLikeSerializer
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, post=Post.objects.get(pk=self.kwargs['nested_2_pk']))
+
+
+class CommentLikeModelViewSet(viewsets.ModelViewSet):
+    queryset = CommentLike.objects.all()
+    serializer_class = CommentLikeSerializer
