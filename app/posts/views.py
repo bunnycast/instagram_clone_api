@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
+from rest_framework.viewsets import GenericViewSet
 
 from posts.models import Post, Comment, PostLike, CommentLike
 from posts.serializers import PostSerializer, CommentSerializer, PostUpdateSerializer, CommentUpdateSerializer, \
@@ -54,6 +55,6 @@ class PostLikeModelViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user, post=Post.objects.get(pk=self.kwargs['nested_2_pk']))
 
 
-class CommentLikeModelViewSet(viewsets.ModelViewSet):
+class CommentLikeModelViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin, GenericViewSet):
     queryset = CommentLike.objects.all()
     serializer_class = CommentLikeSerializer
