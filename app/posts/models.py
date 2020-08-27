@@ -10,6 +10,7 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to="%y%m%d")
+    like_count = models.IntegerField(default=0)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -32,3 +33,4 @@ class PostLike(models.Model):
 class CommentLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)

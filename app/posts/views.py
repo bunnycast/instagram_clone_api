@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from posts.models import Post, Comment, PostLike, CommentLike
@@ -54,7 +56,41 @@ class PostLikeModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, post=Post.objects.get(pk=self.kwargs['nested_2_pk']))
 
+    @action(methods=['POST'], detail=False, url_path='toggle')
+    def list_toggle(self, request, **kwargs):
+        try:
+            like = PostLike.objects.get(user=request.user, post=Post.objects.get(pk=self.kwargs['nested_2_pk']))
+            like.delete()
+            return Response({'message': 'Post Like Deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except PostLike.DoesNotExist:
+            data = {
+                'post': Post.objects.get(pk=self.kwargs['nested_2_pk']).pk,
+                'user': request.user.pk,
+            }
+            serializer = PostLikeSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class CommentLikeModelViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin, GenericViewSet):
     queryset = CommentLike.objects.all()
     serializer_class = CommentLikeSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user.id, comment=Comment.objects.get(pk=self.kwargs['nested_1_pk']).pk)
+
+    @action(methods=['POST'], detail=False, url_path='toggle')
+    def like_toggle(self, request, **kwargs):
+        try:
+            like = CommentLike.objects.get(user=request.user,
+                                           comment=Comment.objects.get(pk=self.kwargs['nested_2_pk']))
+            like.delete()
+            return Response({'message': 'Post Like Delete'}, status=status.HTTP_204_NO_CONTENT)
+        except CommentLike.DoesNotExist:
+            data = {
+                'comment': Comment.objects.get(pk=self.kwargs['nested_2_pk']).pk,
+                'user': request.user.pk,
+            }
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            return Response(serializer.data, status=status.HTTP_201_CREATED )
