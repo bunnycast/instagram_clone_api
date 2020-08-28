@@ -69,6 +69,7 @@ class PostLikeModelViewSet(viewsets.ModelViewSet):
             }
             serializer = PostLikeSerializer(data=data)
             serializer.is_valid(raise_exception=True)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -93,4 +94,5 @@ class CommentLikeModelViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
             }
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED )

@@ -151,21 +151,23 @@ class PostLikeTest(APITestCase):
         response = self.client.post(self.url + f'/toggle')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['post'], self.post2.pk)
+        p = Post.objects.get(pk=2)
         self.assertEqual(response.data['user'], self.user.pk)
 
         # 좋아요가 눌려졌으면 삭제 요청
-        like = PostLike.objects.create(
+        like, __ = PostLike.objects.get_or_create(
             post=self.post2,
             user=self.user,
         )
         response = self.client.delete(self.url + f'/toggle')
+        p = Post.objects.get(pk=2)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
 class CommentLikeTest(APITestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(
-            email='testUser@test.com',
+            email='testCommnetUser@test.com',
             password='1111'
         )
         self.post = Post.objects.create(
@@ -188,13 +190,10 @@ class CommentLikeTest(APITestCase):
     def test_like_toggle(self):
         self.client.force_authenticate(self.user)
         response = self.client.post(self.url)
+        c = Comment.objects.get(pk=2)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['comment'], self.comment2.pk)
         self.assertEqual(response.data['user'], self.user.pk)
 
-        like = CommentLike.objects.create(
-            comment=self.comment2,
-            user=self.user,
-        )
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

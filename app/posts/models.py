@@ -10,7 +10,6 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to="%y%m%d")
-    like_count = models.IntegerField(default=0)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -22,6 +21,7 @@ class Comment(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    like_count = models.IntegerField(default=0)
 
 
 class PostLike(models.Model):
@@ -29,8 +29,28 @@ class PostLike(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ['user', 'post']
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        post = Post.objects.get(id=self.post.id)
+        post.like_count = F('like_count') + 1
+        post.save()
+        return super().save()
+
 
 class CommentLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'comment']
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        comment = Comment.objects.get(id=self.comment_id)
+        comment.update = F('like_count') + 1
+        comment.save()
+        return super().save()
