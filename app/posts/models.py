@@ -1,8 +1,16 @@
+import factory
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import F
 
+from factory import Factory
+
 User = get_user_model()
+
+
+def post_image_path(instance, filename):
+    path = f'{instance.id}/{filename}'
+    return path
 
 
 class Post(models.Model):
@@ -10,11 +18,15 @@ class Post(models.Model):
     content = models.CharField('글 내용', max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to="%y%m%d")
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         return super().save()
+
+
+class PostImage(models.Model):
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, null=True)
+    image = models.ImageField(upload_to=post_image_path)
 
 
 class Comment(models.Model):
@@ -55,3 +67,10 @@ class CommentLike(models.Model):
         comment.update = F('like_count') + 1
         comment.save()
         return super().save()
+
+
+class PostFactory(Factory):
+    class Meta:
+        model = PostImage
+
+    image = factory.django.ImageField(color='blue')

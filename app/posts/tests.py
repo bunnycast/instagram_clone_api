@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from config import settings
 from posts.models import Post, Comment, PostLike, CommentLike
 
 User = get_user_model()
@@ -32,8 +34,22 @@ class PostTest(APITestCase):
             'title': 'testPost',
             'content': 'test content',
         }
+
+        image = settings.dev.MEDIA_ROOT + '/20/07/08/tree.jpg'
+        test_image = SimpleUploadedFile(
+            name='tree.jpg',
+            content=open(image, "rb").read(),
+            content_type="image/jpeg"
+        )
+        data = {
+            'title': 'testPost',
+            'content': 'test Content',
+            'image': 'test_image'
+        }
         self.client.force_authenticate(self.user)
         response = self.client.post(self.url, data=data)
+        post = Post.objects.last()
+        data = post.postimage_set.all()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.fail()
